@@ -36,10 +36,10 @@
 (defn- assert-repositories-match
   "Helper function to compare two repositories' bears and grizzlies"
   [repo1 repo2 expected-bear-count expected-grizzly-count]
-  (let [bear-keys1 (-> repo1 :indexes (get "bear") keys set)
-        bear-keys2 (-> repo2 :indexes (get "bear") keys set)
-        grizzly-keys1 (-> repo1 :indexes (get "grizzly") keys set)
-        grizzly-keys2 (-> repo2 :indexes (get "grizzly") keys set)]
+  (let [bear-keys1 (-> repo1 :indexes (get :bear) keys set)
+        bear-keys2 (-> repo2 :indexes (get :bear) keys set)
+        grizzly-keys1 (-> repo1 :indexes (get :grizzly) keys set)
+        grizzly-keys2 (-> repo2 :indexes (get :grizzly) keys set)]
     (is (= bear-keys1 bear-keys2) "Bear keys should match between repositories")
     (is (= expected-bear-count (count bear-keys1)) "Should have correct number of bears")
     (is (= grizzly-keys1 grizzly-keys2) "Grizzly keys should match between repositories")
@@ -64,8 +64,8 @@
 
     ;; Test counts in original repository
     (testing "Repository after removals"
-      (let [bear-keys (-> @repo :indexes (get "bear") keys set)
-            grizzly-keys (-> @repo :indexes (get "grizzly") keys set)]
+      (let [bear-keys (-> @repo :indexes (get :bear) keys set)
+            grizzly-keys (-> @repo :indexes (get :grizzly) keys set)]
         (is (= 2 (count bear-keys)) "Should have 2 bears remaining")
         (is (= 2 (count grizzly-keys)) "Should have 2 grizzlies remaining")
         (is (= #{"bear-3" "bear-4"} bear-keys) "Should have correct bears")
@@ -83,8 +83,8 @@
 
     ;; Test counts after adding more entries
     (testing "Repository after adding more entries"
-      (let [bear-keys (-> @repo :indexes (get "bear") keys set)
-            grizzly-keys (-> @repo :indexes (get "grizzly") keys set)]
+      (let [bear-keys (-> @repo :indexes (get :bear) keys set)
+            grizzly-keys (-> @repo :indexes (get :grizzly) keys set)]
         (is (= 3 (count bear-keys)) "Should have 3 bears total")
         (is (= 5 (count grizzly-keys)) "Should have 5 grizzlies total")
         (is (= #{"bear-3" "bear-4" "bear-5"} bear-keys) "Should have correct bears")
@@ -115,10 +115,10 @@
 
     ;; Test repository 1
     (testing "Repository 1 synchronization"
-      (let [bear-keys1 (-> @repo1 :indexes (get "bear") keys set)
-            bear-keys1-read (-> @read-repo1 :indexes (get "bear") keys set)
-            grizzly-keys1 (-> @repo1 :indexes (get "grizzly") keys set)
-            grizzly-keys1-read (-> @read-repo1 :indexes (get "grizzly") keys set)]
+      (let [bear-keys1 (-> @repo1 :indexes (get :bear) keys set)
+            bear-keys1-read (-> @read-repo1 :indexes (get :bear) keys set)
+            grizzly-keys1 (-> @repo1 :indexes (get :grizzly) keys set)
+            grizzly-keys1-read (-> @read-repo1 :indexes (get :grizzly) keys set)]
         (is (= bear-keys1 bear-keys1-read) "Bear keys should match in repo1")
         (is (= 4 (count bear-keys1)) "Should have exactly 4 bears in repo1")
         (is (= grizzly-keys1 grizzly-keys1-read) "Grizzly keys should match in repo1")
@@ -126,10 +126,10 @@
 
     ;; Test repository 2
     (testing "Repository 2 synchronization"
-      (let [bear-keys2 (-> @repo2 :indexes (get "bear") keys set)
-            bear-keys2-read (-> @read-repo2 :indexes (get "bear") keys set)
-            grizzly-keys2 (-> @repo2 :indexes (get "grizzly") keys set)
-            grizzly-keys2-read (-> @read-repo2 :indexes (get "grizzly") keys set)]
+      (let [bear-keys2 (-> @repo2 :indexes (get :bear) keys set)
+            bear-keys2-read (-> @read-repo2 :indexes (get :bear) keys set)
+            grizzly-keys2 (-> @repo2 :indexes (get :grizzly) keys set)
+            grizzly-keys2-read (-> @read-repo2 :indexes (get :grizzly) keys set)]
         (is (= bear-keys2 bear-keys2-read) "Bear keys should match in repo2")
         (is (= 4 (count bear-keys2)) "Should have exactly 4 bears in repo2")
         (is (= grizzly-keys2 grizzly-keys2-read) "Grizzly keys should match in repo2")
@@ -137,9 +137,9 @@
 
     ;; Test cross-repository
     (testing "Cross-repository synchronization"
-      (let [bear-keys1 (-> @repo1 :indexes (get "bear") keys set)
-            bear-keys2-read (-> @read-repo2 :indexes (get "bear") keys set)
-            grizzly-keys1 (-> @repo1 :indexes (get "grizzly") keys set)
-            grizzly-keys2-read (-> @read-repo2 :indexes (get "grizzly") keys set)]
+      (let [bear-keys1 (-> @repo1 :indexes (get :bear) keys set)
+            bear-keys2-read (-> @read-repo2 :indexes (get :bear) keys set)
+            grizzly-keys1 (-> @repo1 :indexes (get :grizzly) keys set)
+            grizzly-keys2-read (-> @read-repo2 :indexes (get :grizzly) keys set)]
         (is (= bear-keys1 bear-keys2-read) "Bear keys should match across repositories")
         (is (= grizzly-keys1 grizzly-keys2-read) "Grizzly keys should match across repositories")))))
