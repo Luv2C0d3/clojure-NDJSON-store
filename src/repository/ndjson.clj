@@ -1,7 +1,8 @@
 (ns repository.ndjson
   (:require [clojure.java.io :as io]
             [cheshire.core :as json]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [clojure.string :as string]))
 
 (defprotocol NDJsonRepository
   (load-data! [this] "Load data from NDJSON file into memory")
@@ -13,12 +14,16 @@
 (defn- load-ndjson-file [file-path]
   (with-open [rdr (io/reader file-path)]
     (->> (line-seq rdr)
+         (filter #(not (string/blank? %)))  ; Skip empty lines
          (map json/parse-string)
+         (filter some?)  ; Remove nil results from parsing
          (doall))))
 
 (defn- index-data [data key-name]
   (reduce (fn [acc entry]
-            (assoc acc (get entry key-name) entry))
+            (if-let [key-val (get entry key-name)]  ; Only index if the entry has this key
+              (assoc acc key-val entry)
+              acc))  ; Skip entries without this key
           {}
           data))
 
@@ -35,26 +40,29 @@
                               (assoc acc key-name (index-data data key-name)))
                             {}
                             primary-keys)]
-        (log/info "Loaded NDJSON file:" file-path)
-        (log/info "Primary keys:" primary-keys)
-        (log/info "Data count:" (count data))
-        (log/info "Sample data:" (take 2 data))
+        (log/debug "Loaded NDJSON file:" file-path)
+        (log/debug "Primary keys:" primary-keys)
+        (log/debug "Data count:" (count data))
+        (log/debug "Sample data:" (take 2 data))
         (doseq [key-name primary-keys]
-          (log/info "Index for" key-name "has" (count (get indexes key-name)) "entries"))
+          (log/debug "Index for" key-name "has" (count (get indexes key-name)) "entries"))
         (assoc this
                :data data
                :indexes indexes))
       (catch Exception e
         (log/error "Failed to load NDJSON file:" file-path "Error:" (.getMessage e))
-        this)))
+        ;; Initialize with empty collections when file doesn't exist
+        (assoc this
+               :data []
+               :indexes (reduce #(assoc %1 %2 {}) {} primary-keys)))))
 
   (find-by-key [this key-name key-value]
-    (log/info "-->in ndjson::find-by-key: Key name:" key-name "Key value:" key-value)
-    (log/info "-->Available indexes:" (keys (:indexes this)))
-    (log/info "-->Index for" key-name "contains keys:" (keys (get-in this [:indexes key-name])))
+    (log/debug "-->in ndjson::find-by-key: Key name:" key-name "Key value:" key-value)
+    (log/debug "-->Available indexes:" (keys (:indexes this)))
+    (log/debug "-->Index for" key-name "contains keys:" (keys (get-in this [:indexes key-name])))
     (when-let [index (get-in this [:indexes key-name])]
       (let [result (get index key-value)]
-        (log/info "-->in ndjson::find-by-key: Result:" (pr-str result))
+        (log/debug "-->in ndjson::find-by-key: Result:" (pr-str result))
         result)))
 
   (add! [this entry]
@@ -70,25 +78,25 @@
                                         key-val (or (get entry key-name)
                                                     (get entry (keyword key-name))
                                                     (get entry (name key-name)))]
-                                    (log/info "Processing key:" key-name "value:" key-val "has-value:" (boolean key-val))
+                                    (log/debug "Processing key:" key-name "value:" key-val "has-value:" (boolean key-val))
                                     (assoc acc key-name
                                            (if key-val
                                              ;; Only update index if this entry has this key
                                              (do
-                                               (log/info "Updating index for key:" key-name "with value:" key-val)
+                                               (log/debug "Updating index for key:" key-name "with value:" key-val)
                                                (assoc existing-index key-val entry))
                                              ;; Keep existing index unchanged if entry doesn't have this key
                                              (do
-                                               (log/info "Keeping existing index for key:" key-name)
+                                               (log/debug "Keeping existing index for key:" key-name)
                                                existing-index)))))
                                 (:indexes this)  ; Start with existing indexes
                                 primary-keys)
             updated-keys (filter #(or (contains? entry %)
                                       (contains? entry (keyword %))
                                       (contains? entry (name %))) primary-keys)]
-        (log/info "Added entry with keys:" (keys entry))
-        (log/info "Primary keys:" primary-keys)
-        (log/info "Updated indexes for keys:" updated-keys)
+        (log/debug "Added entry with keys:" (keys entry))
+        (log/debug "Primary keys:" primary-keys)
+        (log/debug "Updated indexes for keys:" updated-keys)
         (assoc this
                :data new-data
                :indexes new-indexes))

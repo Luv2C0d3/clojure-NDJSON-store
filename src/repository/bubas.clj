@@ -18,8 +18,8 @@
   "Find a bear entry by its bear"
   [repo bear]
   (let [bear-entry (find-by-key repo "bear" bear)]
-    (log/info "-->in bubas::find-bubas-by-bear: Found bear data:" (pr-str bear-entry))
-    (log/info "-->in bubas::find-bubas-by-bear: Bear:" bear)
+    (log/debug "-->in bubas::find-bubas-by-bear: Found bear data:" (pr-str bear-entry))
+    (log/debug "-->in bubas::find-bubas-by-bear: Bear:" bear)
     bear-entry))
 
 (defn store-bear!
