@@ -4,11 +4,6 @@
             [clojure.tools.logging :as log])
   (:gen-class))
 
-(defonce bubas-repository-1 (atom nil))
-(defonce bubas-repository-2 (atom nil))
-(defonce bubas-repository-read-1 (atom nil))
-(defonce bubas-repository-read-2 (atom nil))
-
 (defn create-example-bear!
   "Creates an example bear entry"
   [repo-atom bear-num]
@@ -33,82 +28,81 @@
     entry))
 
 (defn- test1 []
-  ;; Create example bear and grizzly
-  (println "\nCreating example bear and grizzly in first repo:")
-  (doseq [i (range 1 10001)]
-    (create-example-bear! bubas-repository-1 i)
-    (create-example-grizzly! bubas-repository-1 i)
-    (create-example-bear! bubas-repository-2 i)
-    (create-example-grizzly! bubas-repository-2 i))
+  (let [bubas-repository-1 (atom (bubas/create-bubas-repository "ositos.nosql"))
+        bubas-repository-2 (atom (bubas/create-bubas-repository "yoggies.ndjson"))
+        bubas-repository-read-1 (atom nil)
+        bubas-repository-read-2 (atom nil)]
+    ;; Create example bear and grizzly
+    (println "\nCreating example bear and grizzly in first repo:")
+    (doseq [i (range 1 10001)]
+      (create-example-bear! bubas-repository-1 i)
+      (create-example-grizzly! bubas-repository-1 i)
+      (create-example-bear! bubas-repository-2 i)
+      (create-example-grizzly! bubas-repository-2 i))
 
-  (reset! bubas-repository-read-1 (bubas/create-bubas-repository "ositos.nosql"))
-  (reset! bubas-repository-read-2 (bubas/create-bubas-repository "yoggies.ndjson"))
+    (reset! bubas-repository-read-1 (bubas/create-bubas-repository "ositos.nosql"))
+    (reset! bubas-repository-read-2 (bubas/create-bubas-repository "yoggies.ndjson"))
 
-  ;; First comparison (original)
-  (let [bear-keys1 (-> @bubas-repository-1 :indexes (get "bear") keys sort)
-        bear-keys1-read (-> @bubas-repository-read-1 :indexes (get "bear") keys sort)]
-    (log/info "\nComparing bear keys between bubas-repository-1 and bubas-repository-read-1:")
-    (log/info "Original bubas-repository-1 keys count:" (count bear-keys1))
-    (log/info "Read bubas-repository-read-1 keys count:" (count bear-keys1-read))
-    (log/info "Keys match?" (= bear-keys1 bear-keys1-read))
-    (log/debug "Extra keys in bubas-repository-read-1:" (seq (remove (set bear-keys1) bear-keys1-read)))
-    (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set bear-keys1-read) bear-keys1))))
+    ;; First comparison (original)
+    (let [bear-keys1 (-> @bubas-repository-1 :indexes (get "bear") keys sort)
+          bear-keys1-read (-> @bubas-repository-read-1 :indexes (get "bear") keys sort)]
+      (log/info "\nComparing bear keys between bubas-repository-1 and bubas-repository-read-1:")
+      (log/info "Original bubas-repository-1 keys count:" (count bear-keys1))
+      (log/info "Read bubas-repository-read-1 keys count:" (count bear-keys1-read))
+      (log/info "Keys match?" (= bear-keys1 bear-keys1-read))
+      (log/debug "Extra keys in bubas-repository-read-1:" (seq (remove (set bear-keys1) bear-keys1-read)))
+      (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set bear-keys1-read) bear-keys1))))
 
-  (let [grizzly-keys1 (-> @bubas-repository-1 :indexes (get "grizzly") keys sort)
-        grizzly-keys1-read (-> @bubas-repository-read-1 :indexes (get "grizzly") keys sort)]
-    (log/info "\nComparing grizzly keys between bubas-repository-1 and bubas-repository-read-1:")
-    (log/info "Original bubas-repository-1 keys count:" (count grizzly-keys1))
-    (log/info "Read bubas-repository-read-1 keys count:" (count grizzly-keys1-read))
-    (log/info "Keys match?" (= grizzly-keys1 grizzly-keys1-read))
-    (log/debug "Extra keys in bubas-repository-read-1:" (seq (remove (set grizzly-keys1) grizzly-keys1-read)))
-    (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set grizzly-keys1-read) grizzly-keys1))))
+    (let [grizzly-keys1 (-> @bubas-repository-1 :indexes (get "grizzly") keys sort)
+          grizzly-keys1-read (-> @bubas-repository-read-1 :indexes (get "grizzly") keys sort)]
+      (log/info "\nComparing grizzly keys between bubas-repository-1 and bubas-repository-read-1:")
+      (log/info "Original bubas-repository-1 keys count:" (count grizzly-keys1))
+      (log/info "Read bubas-repository-read-1 keys count:" (count grizzly-keys1-read))
+      (log/info "Keys match?" (= grizzly-keys1 grizzly-keys1-read))
+      (log/debug "Extra keys in bubas-repository-read-1:" (seq (remove (set grizzly-keys1) grizzly-keys1-read)))
+      (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set grizzly-keys1-read) grizzly-keys1))))
 
-  ;; Second comparison (repo2 vs read2)
-  (let [bear-keys2 (-> @bubas-repository-2 :indexes (get "bear") keys sort)
-        bear-keys2-read (-> @bubas-repository-read-2 :indexes (get "bear") keys sort)]
-    (log/info "\nComparing bear keys between bubas-repository-2 and bubas-repository-read-2:")
-    (log/info "Original bubas-repository-2 keys count:" (count bear-keys2))
-    (log/info "Read bubas-repository-read-2 keys count:" (count bear-keys2-read))
-    (log/info "Keys match?" (= bear-keys2 bear-keys2-read))
-    (log/debug "Extra keys in bubas-repository-read-2:" (seq (remove (set bear-keys2) bear-keys2-read)))
-    (log/debug "Extra keys in original bubas-repository-2:" (seq (remove (set bear-keys2-read) bear-keys2))))
+    ;; Second comparison (repo2 vs read2)
+    (let [bear-keys2 (-> @bubas-repository-2 :indexes (get "bear") keys sort)
+          bear-keys2-read (-> @bubas-repository-read-2 :indexes (get "bear") keys sort)]
+      (log/info "\nComparing bear keys between bubas-repository-2 and bubas-repository-read-2:")
+      (log/info "Original bubas-repository-2 keys count:" (count bear-keys2))
+      (log/info "Read bubas-repository-read-2 keys count:" (count bear-keys2-read))
+      (log/info "Keys match?" (= bear-keys2 bear-keys2-read))
+      (log/debug "Extra keys in bubas-repository-read-2:" (seq (remove (set bear-keys2) bear-keys2-read)))
+      (log/debug "Extra keys in original bubas-repository-2:" (seq (remove (set bear-keys2-read) bear-keys2))))
 
-  (let [grizzly-keys2 (-> @bubas-repository-2 :indexes (get "grizzly") keys sort)
-        grizzly-keys2-read (-> @bubas-repository-read-2 :indexes (get "grizzly") keys sort)]
-    (log/info "\nComparing grizzly keys between bubas-repository-2 and bubas-repository-read-2:")
-    (log/info "Original bubas-repository-2 keys count:" (count grizzly-keys2))
-    (log/info "Read bubas-repository-read-2 keys count:" (count grizzly-keys2-read))
-    (log/info "Keys match?" (= grizzly-keys2 grizzly-keys2-read))
-    (log/debug "Extra keys in bubas-repository-read-2:" (seq (remove (set grizzly-keys2) grizzly-keys2-read)))
-    (log/debug "Extra keys in original bubas-repository-2:" (seq (remove (set grizzly-keys2-read) grizzly-keys2))))
+    (let [grizzly-keys2 (-> @bubas-repository-2 :indexes (get "grizzly") keys sort)
+          grizzly-keys2-read (-> @bubas-repository-read-2 :indexes (get "grizzly") keys sort)]
+      (log/info "\nComparing grizzly keys between bubas-repository-2 and bubas-repository-read-2:")
+      (log/info "Original bubas-repository-2 keys count:" (count grizzly-keys2))
+      (log/info "Read bubas-repository-read-2 keys count:" (count grizzly-keys2-read))
+      (log/info "Keys match?" (= grizzly-keys2 grizzly-keys2-read))
+      (log/debug "Extra keys in bubas-repository-read-2:" (seq (remove (set grizzly-keys2) grizzly-keys2-read)))
+      (log/debug "Extra keys in original bubas-repository-2:" (seq (remove (set grizzly-keys2-read) grizzly-keys2))))
 
-  ;; Third comparison (repo1 vs read2)
-  (let [bear-keys1 (-> @bubas-repository-1 :indexes (get "bear") keys sort)
-        bear-keys2-read (-> @bubas-repository-read-2 :indexes (get "bear") keys sort)]
-    (log/info "\nComparing bear keys between bubas-repository and bubas-repository-read-2:")
-    (log/info "Original bubas-repository-1 keys count:" (count bear-keys1))
-    (log/info "Read bubas-repository-read-2 keys count:" (count bear-keys2-read))
-    (log/info "Keys match?" (= bear-keys1 bear-keys2-read))
-    (log/debug "Extra keys in bubas-repository-read-2:" (seq (remove (set bear-keys1) bear-keys2-read)))
-    (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set bear-keys2-read) bear-keys1))))
+    ;; Third comparison (repo1 vs read2)
+    (let [bear-keys1 (-> @bubas-repository-1 :indexes (get "bear") keys sort)
+          bear-keys2-read (-> @bubas-repository-read-2 :indexes (get "bear") keys sort)]
+      (log/info "\nComparing bear keys between bubas-repository and bubas-repository-read-2:")
+      (log/info "Original bubas-repository-1 keys count:" (count bear-keys1))
+      (log/info "Read bubas-repository-read-2 keys count:" (count bear-keys2-read))
+      (log/info "Keys match?" (= bear-keys1 bear-keys2-read))
+      (log/debug "Extra keys in bubas-repository-read-2:" (seq (remove (set bear-keys1) bear-keys2-read)))
+      (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set bear-keys2-read) bear-keys1))))
 
-  (let [grizzly-keys1 (-> @bubas-repository-1 :indexes (get "grizzly") keys sort)
-        grizzly-keys2-read (-> @bubas-repository-read-2 :indexes (get "grizzly") keys sort)]
-    (log/info "\nComparing grizzly keys between bubas-repository-1 and bubas-repository-read-2:")
-    (log/info "Original bubas-repository-1 keys count:" (count grizzly-keys1))
-    (log/info "Read bubas-repository-read-2 keys count:" (count grizzly-keys2-read))
-    (log/info "Keys match?" (= grizzly-keys1 grizzly-keys2-read))
-    (log/debug "Extra keys in bubas-repository-read-2:" (seq (remove (set grizzly-keys1) grizzly-keys2-read)))
-    (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set grizzly-keys2-read) grizzly-keys1)))))
-
+    (let [grizzly-keys1 (-> @bubas-repository-1 :indexes (get "grizzly") keys sort)
+          grizzly-keys2-read (-> @bubas-repository-read-2 :indexes (get "grizzly") keys sort)]
+      (log/info "\nComparing grizzly keys between bubas-repository-1 and bubas-repository-read-2:")
+      (log/info "Original bubas-repository-1 keys count:" (count grizzly-keys1))
+      (log/info "Read bubas-repository-read-2 keys count:" (count grizzly-keys2-read))
+      (log/info "Keys match?" (= grizzly-keys1 grizzly-keys2-read))
+      (log/debug "Extra keys in bubas-repository-read-2:" (seq (remove (set grizzly-keys1) grizzly-keys2-read)))
+      (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set grizzly-keys2-read) grizzly-keys1))))))
 
 (defn -main
   "Main function that runs when starting the application"
   [& args]
-  ;; Initialize the repository
-  (reset! bubas-repository-1 (bubas/create-bubas-repository "ositos.nosql"))
-  (reset! bubas-repository-2 (bubas/create-bubas-repository "yoggies.ndjson"))
-
   (println "Aplicación de consola para tester repositorio polimorfico")
   (println "Argumentos recibidos:" (or args "ninguno"))
   (println "Versión:" (utils/version))
