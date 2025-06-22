@@ -16,3 +16,6 @@ pom.xml.asc
 .history/
 .lsp/
 
+
+*.nosql
+*.ndjson
