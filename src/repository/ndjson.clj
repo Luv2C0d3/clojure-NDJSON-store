@@ -34,12 +34,20 @@
   NDJsonRepository
   (load-data! [this]
     (try
+      ;; Ensure file exists
+      (let [file (io/file file-path)]
+        (when-let [parent (.getParentFile file)]
+          (.mkdirs parent))
+        (when-not (.exists file)
+          (log/debug "Creating new NDJSON repository file:" file-path)
+          (.createNewFile file)))
+      
       (let [data (load-ndjson-file file-path)
             ;; Create indexes for each primary key for O(1) lookup
             indexes (reduce (fn [acc key-name]
-                              (assoc acc key-name (index-data data key-name)))
-                            {}
-                            primary-keys)]
+                            (assoc acc key-name (index-data data key-name)))
+                          {}
+                          primary-keys)]
         (log/debug "Loaded NDJSON file:" file-path)
         (log/debug "Primary keys:" primary-keys)
         (log/debug "Data count:" (count data))
