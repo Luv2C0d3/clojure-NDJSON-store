@@ -4,7 +4,7 @@
             [clojure.java.io :as io]))
 
 (defn- cleanup-test-files! []
-  (doseq [file ["test-ositos.nosql" "test-yoggies.ndjson"]]
+  (doseq [file ["test-ositos.nosql" "test-yoggies.ndjson" "winnie-the-pooh.ndjson"]]
     (when (.exists (io/file file))
       (io/delete-file file))))
 
@@ -74,7 +74,26 @@
     ;; Load repository from file and compare
     (testing "Repository reloaded from file"
       (let [loaded-repo (bubas/create-bubas-repository "winnie-the-pooh.ndjson")]
-        (assert-repositories-match @repo loaded-repo 2 2)))))
+        (assert-repositories-match @repo loaded-repo 2 2)))
+
+    ;; Add more entries
+    (create-example-bear! repo 5)  ;; Add one more bear
+    (doseq [i (range 4 7)]         ;; Add three more grizzlies
+      (create-example-grizzly! repo i))
+
+    ;; Test counts after adding more entries
+    (testing "Repository after adding more entries"
+      (let [bear-keys (-> @repo :indexes (get "bear") keys set)
+            grizzly-keys (-> @repo :indexes (get "grizzly") keys set)]
+        (is (= 3 (count bear-keys)) "Should have 3 bears total")
+        (is (= 5 (count grizzly-keys)) "Should have 5 grizzlies total")
+        (is (= #{"bear-3" "bear-4" "bear-5"} bear-keys) "Should have correct bears")
+        (is (= #{"grizzly-2" "grizzly-3" "grizzly-4" "grizzly-5" "grizzly-6"} grizzly-keys) "Should have correct grizzlies")))
+
+    ;; Load repository from file again and compare
+    (testing "Repository reloaded from file after adding more entries"
+      (let [loaded-repo (bubas/create-bubas-repository "winnie-the-pooh.ndjson")]
+        (assert-repositories-match @repo loaded-repo 3 5)))))
 
 
 (deftest test-repository-synchronization
