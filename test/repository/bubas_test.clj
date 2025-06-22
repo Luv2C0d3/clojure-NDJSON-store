@@ -33,6 +33,50 @@
     (reset! repo-atom new-repo)
     entry))
 
+(defn- assert-repositories-match
+  "Helper function to compare two repositories' bears and grizzlies"
+  [repo1 repo2 expected-bear-count expected-grizzly-count]
+  (let [bear-keys1 (-> repo1 :indexes (get "bear") keys set)
+        bear-keys2 (-> repo2 :indexes (get "bear") keys set)
+        grizzly-keys1 (-> repo1 :indexes (get "grizzly") keys set)
+        grizzly-keys2 (-> repo2 :indexes (get "grizzly") keys set)]
+    (is (= bear-keys1 bear-keys2) "Bear keys should match between repositories")
+    (is (= expected-bear-count (count bear-keys1)) "Should have correct number of bears")
+    (is (= grizzly-keys1 grizzly-keys2) "Grizzly keys should match between repositories")
+    (is (= expected-grizzly-count (count grizzly-keys1)) "Should have correct number of grizzlies")))
+
+(deftest test-repository-add-and-remove
+  (let [repo (atom (bubas/create-bubas-repository "winnie-the-pooh.ndjson"))]
+
+    ;; Add initial entries
+    (doseq [i (range 1 5)]
+      (create-example-bear! repo i))
+    (doseq [i (range 1 4)]
+      (create-example-grizzly! repo i))
+
+    ;; Remove some entries
+    (let [new-repo (bubas/remove-bear! @repo "bear-1")]
+      (reset! repo new-repo))
+    (let [new-repo (bubas/remove-bear! @repo "bear-2")]
+      (reset! repo new-repo))
+    (let [new-repo (bubas/remove-grizzly! @repo "grizzly-1")]
+      (reset! repo new-repo))
+
+    ;; Test counts in original repository
+    (testing "Repository after removals"
+      (let [bear-keys (-> @repo :indexes (get "bear") keys set)
+            grizzly-keys (-> @repo :indexes (get "grizzly") keys set)]
+        (is (= 2 (count bear-keys)) "Should have 2 bears remaining")
+        (is (= 2 (count grizzly-keys)) "Should have 2 grizzlies remaining")
+        (is (= #{"bear-3" "bear-4"} bear-keys) "Should have correct bears")
+        (is (= #{"grizzly-2" "grizzly-3"} grizzly-keys) "Should have correct grizzlies")))
+
+    ;; Load repository from file and compare
+    (testing "Repository reloaded from file"
+      (let [loaded-repo (bubas/create-bubas-repository "winnie-the-pooh.ndjson")]
+        (assert-repositories-match @repo loaded-repo 2 2)))))
+
+
 (deftest test-repository-synchronization
   (let [repo1 (atom (bubas/create-bubas-repository "test-ositos.nosql"))
         repo2 (atom (bubas/create-bubas-repository "test-yoggies.ndjson"))

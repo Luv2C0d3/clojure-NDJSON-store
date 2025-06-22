@@ -52,3 +52,15 @@
                       (get bubas "grizzly"))
           new-repo (delete! repo key-name key-value)]
       [new-repo entry])))
+
+(defn remove-bear!
+  "Remove a bear entry from the repository"
+  [repo bear-id]
+  (let [[new-repo entry] (remove-bubas! repo {"bear" bear-id})]
+    (or new-repo repo)))
+
+(defn remove-grizzly!
+  "Remove a grizzly entry from the repository"
+  [repo grizzly-id]
+  (let [[new-repo entry] (remove-bubas! repo {"grizzly" grizzly-id})]
+    (or new-repo repo)))
