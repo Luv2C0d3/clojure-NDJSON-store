@@ -32,17 +32,7 @@
     (log/debug "Creating grizzly:" grizzly-id)
     entry))
 
-(defn -main
-  "Main function that runs when starting the application"
-  [& args]
-  ;; Initialize the repository
-  (reset! bubas-repository-1 (bubas/create-bubas-repository "ositos.nosql"))
-  (reset! bubas-repository-2 (bubas/create-bubas-repository "yoggies.ndjson"))
-
-  (println "Aplicación de consola para tester repositorio polimorfico")
-  (println "Argumentos recibidos:" (or args "ninguno"))
-  (println "Versión:" (utils/version))
-
+(defn- test1 []
   ;; Create example bear and grizzly
   (println "\nCreating example bear and grizzly in first repo:")
   (doseq [i (range 1 10001)]
@@ -109,6 +99,19 @@
     (log/info "Read bubas-repository-read-2 keys count:" (count grizzly-keys2-read))
     (log/info "Keys match?" (= grizzly-keys1 grizzly-keys2-read))
     (log/debug "Extra keys in bubas-repository-read-2:" (seq (remove (set grizzly-keys1) grizzly-keys2-read)))
-    (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set grizzly-keys2-read) grizzly-keys1))))
+    (log/debug "Extra keys in original bubas-repository-1:" (seq (remove (set grizzly-keys2-read) grizzly-keys1)))))
 
+
+(defn -main
+  "Main function that runs when starting the application"
+  [& args]
+  ;; Initialize the repository
+  (reset! bubas-repository-1 (bubas/create-bubas-repository "ositos.nosql"))
+  (reset! bubas-repository-2 (bubas/create-bubas-repository "yoggies.ndjson"))
+
+  (println "Aplicación de consola para tester repositorio polimorfico")
+  (println "Argumentos recibidos:" (or args "ninguno"))
+  (println "Versión:" (utils/version))
+  (test1)
   (println "Fin de la aplicación"))
+
