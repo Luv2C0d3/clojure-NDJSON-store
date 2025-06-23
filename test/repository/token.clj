@@ -3,25 +3,16 @@
             [clojure.string :as str]
             [clojure.tools.logging :as log]))
 
-;; Define the token repository with two primary keys: access_token and refresh_token
-(def token-repository
-  (create-repository
-   "resources/tokens.nosql"  ;; Store tokens in tokens.nosql
-   [:access_token :refresh_token])) ;; Two primary keys for O(1) lookups
-
-
 (defn create-token-repository
   "Creates a new token repository"
   ([] (create-token-repository "resources/tokens.nosql"))
   ([filename]
    (create-repository filename [:access_token :refresh_token])))
 
-
 (defn find-token-by-access-token
   "Find a token entry by its access_token"
   [repo access-token]
   (find-by-key repo :access_token access-token))
-
 
 (defn find-token-by-refresh-token
   "Find a token entry by its refresh_token"
