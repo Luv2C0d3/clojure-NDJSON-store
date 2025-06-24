@@ -5,9 +5,8 @@
 
 (defn create-token-repository
   "Creates a new token repository"
-  ([] (create-token-repository "resources/tokens.nosql"))
-  ([filename]
-   (create-repository filename [:access_token :refresh_token])))
+  [filename]
+  (create-repository filename [:access_token :refresh_token]))
 
 (defn find-token-by-access-token
   "Find a token entry by its access_token"

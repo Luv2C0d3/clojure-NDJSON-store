@@ -4,9 +4,8 @@
 
 (defn create-client-repository
   "Creates a new client repository"
-  ([] (create-client-repository "resources/clients.nosql"))
-  ([filename]
-   (create-repository filename [:client_id])))
+  [filename]
+  (create-repository filename [:client_id]))
 
 (defn find-client-by-id
   "Find a client by its client_id"
