@@ -1,4 +1,4 @@
-(ns repository.token
+(ns webapp.repository.token
   (:require [repository.ndjson :refer [create-repository find-by-key add! delete!]]
             [clojure.string :as str]
             [clojure.tools.logging :as log]))
@@ -63,4 +63,4 @@
   "Remove a refresh token entry from the repository"
   [repo token-id]
   (let [[new-repo _] (remove-token-by-type! repo :refresh_token token-id)]
-    (or new-repo repo)))
+    (or new-repo repo))) 

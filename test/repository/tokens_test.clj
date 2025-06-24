@@ -1,7 +1,7 @@
-(ns repository.tokens_test
+(ns repository.tokens-test
   (:require [clojure.test :refer :all]
             [clojure.tools.logging :as log]
-            [repository.token :as token]
+            [webapp.repository.token :as token]
             [clojure.java.io :as io]))
 
 (defn- cleanup-test-files! []

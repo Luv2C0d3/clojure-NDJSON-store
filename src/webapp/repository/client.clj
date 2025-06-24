@@ -1,4 +1,4 @@
-(ns repository.client
+(ns webapp.repository.client
   (:require [repository.ndjson :refer [create-repository find-by-key add! delete!]]
             [clojure.tools.logging :as log]))
 
