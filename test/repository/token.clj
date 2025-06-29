@@ -1,4 +1,4 @@
-(ns webapp.repository.token
+(ns repository.token
   (:require [repository.ndjson :refer [create-repository find-by-key add! delete!]]
             [clojure.string :as str]
             [clojure.tools.logging :as log]))

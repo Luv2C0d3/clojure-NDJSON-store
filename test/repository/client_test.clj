@@ -1,7 +1,7 @@
 (ns repository.client-test
   (:require [clojure.test :refer :all]
             [clojure.tools.logging :as log]
-            [webapp.repository.client :as client]
+            [repository.client :as client]
             [clojure.java.io :as io]))
 
 (defn- cleanup-test-files! []
