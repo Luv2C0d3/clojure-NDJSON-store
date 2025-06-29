@@ -7,7 +7,7 @@
 (defprotocol NDJsonRepository
   (load-data! [this] "Load data from NDJSON file into memory")
   (find-by-key [this key-name key-value] "Find an entry by a specific key value")
-  (add! [this entry] "Add a new entry to the repository")
+  (add! [this entry] "Add a new entry to the repository. Returns the new repository instance.")
   (delete! [this key-name key-value] "Delete an entry by key value")
   #_(update! [this key-name key-value entry] "Update an entry by key value"))
 
@@ -175,3 +175,20 @@
 (defn create-repository [file-path primary-keys]
   (-> (NDJsonRepositoryImpl. file-path primary-keys)
       (load-data!)))
+
+;; Atom-aware versions of the core functions
+(defn add-to-atom!
+  "Adds an entry to a repository stored in an atom. Returns the entry that was added.
+   Unlike add!, this function handles the atom update automatically."
+  [repo-atom entry]
+  (let [new-repo (add! @repo-atom entry)]
+    (reset! repo-atom new-repo)
+    entry))
+
+(defn delete-from-atom!
+  "Deletes an entry from a repository stored in an atom by its key and value.
+   Unlike delete!, this function handles the atom update automatically."
+  [repo-atom key-name key-value]
+  (let [new-repo (delete! @repo-atom key-name key-value)]
+    (reset! repo-atom new-repo)
+    new-repo))

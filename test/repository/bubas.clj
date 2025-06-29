@@ -1,5 +1,5 @@
 (ns repository.bubas
-  (:require [org.clojars.luv2c0d3.ndjson-repository.ndjson :refer [create-repository find-by-key add! delete!]]
+  (:require [org.clojars.luv2c0d3.ndjson-repository.ndjson :refer [create-repository find-by-key add! delete! add-to-atom! delete-from-atom!]]
             [clojure.string :as str]
             [clojure.tools.logging :as log]))
 
@@ -24,43 +24,39 @@
 
 (defn store-bear!
   "Store a new access bear"
-  [repo bear client-id scope expires-at]
+  [repo-atom bear client-id scope expires-at]
   (let [bubas-entry {:bear bear
                      :client_id client-id
                      :scope (str/split scope #" ")
-                     :expires_at expires-at}
-        new-repo (add! repo bubas-entry)]
-    [new-repo bubas-entry]))
+                     :expires_at expires-at}]
+    (add-to-atom! repo-atom bubas-entry)))
 
 (defn store-grizzly!
   "Store a new grizzly with its associated data"
-  [repo grizzly client-id scope]
+  [repo-atom grizzly client-id scope]
   (let [bubas-entry {:grizzly grizzly
                      :client_id client-id
-                     :scope (str/split scope #" ")}
-        new-repo (add! repo bubas-entry)]
-    [new-repo bubas-entry]))
+                     :scope (str/split scope #" ")}]
+    (add-to-atom! repo-atom bubas-entry)))
 
 (defn remove-bubas!
   "Remove a bubas entry from the repository by either bear or grizzly"
-  [repo bubas]
-  (when-let [entry (or (find-bubas-by-bear repo (get bubas :bear))
-                       (find-bubas-by-grizzly repo (get bubas :grizzly)))]
+  [repo-atom bubas]
+  (when-let [entry (or (find-bubas-by-bear @repo-atom (get bubas :bear))
+                       (find-bubas-by-grizzly @repo-atom (get bubas :grizzly)))]
     (let [key-name (if (get bubas :bear) :bear :grizzly)
           key-value (if (get bubas :bear)
                       (get bubas :bear)
-                      (get bubas :grizzly))
-          new-repo (delete! repo key-name key-value)]
-      [new-repo entry])))
+                      (get bubas :grizzly))]
+      (delete-from-atom! repo-atom key-name key-value)
+      entry)))
 
 (defn remove-bear!
   "Remove a bear entry from the repository"
-  [repo bear-id]
-  (let [[new-repo entry] (remove-bubas! repo {:bear bear-id})]
-    (or new-repo repo)))
+  [repo-atom bear-id]
+  (remove-bubas! repo-atom {:bear bear-id}))
 
 (defn remove-grizzly!
   "Remove a grizzly entry from the repository"
-  [repo grizzly-id]
-  (let [[new-repo entry] (remove-bubas! repo {:grizzly grizzly-id})]
-    (or new-repo repo)))
+  [repo-atom grizzly-id]
+  (remove-bubas! repo-atom {:grizzly grizzly-id}))

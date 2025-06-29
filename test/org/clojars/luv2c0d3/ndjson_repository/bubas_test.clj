@@ -19,19 +19,15 @@
   (let [bear-id (str "bear-" bear-num)
         client-id "client-456"
         scope "read write"
-        expires-at (+ (System/currentTimeMillis) (* 3600 1000))
-        [new-repo entry] (bubas/store-bear! @repo-atom bear-id client-id scope expires-at)]
-    (reset! repo-atom new-repo)
-    entry))
+        expires-at (+ (System/currentTimeMillis) (* 3600 1000))]
+    (bubas/store-bear! repo-atom bear-id client-id scope expires-at)))
 
 (defn- create-example-grizzly!
   [repo-atom grizzly-num]
   (let [grizzly-id (str "grizzly-" grizzly-num)
         client-id "client-456"
-        scope "read"
-        [new-repo entry] (bubas/store-grizzly! @repo-atom grizzly-id client-id scope)]
-    (reset! repo-atom new-repo)
-    entry))
+        scope "read"]
+    (bubas/store-grizzly! repo-atom grizzly-id client-id scope)))
 
 (defn- assert-repositories-match
   "Helper function to compare two repositories' bears and grizzlies"
@@ -55,12 +51,9 @@
       (create-example-grizzly! repo i))
 
     ;; Remove some entries
-    (let [new-repo (bubas/remove-bear! @repo "bear-1")]
-      (reset! repo new-repo))
-    (let [new-repo (bubas/remove-bear! @repo "bear-2")]
-      (reset! repo new-repo))
-    (let [new-repo (bubas/remove-grizzly! @repo "grizzly-1")]
-      (reset! repo new-repo))
+    (bubas/remove-bear! repo "bear-1")
+    (bubas/remove-bear! repo "bear-2")
+    (bubas/remove-grizzly! repo "grizzly-1")
 
     ;; Test counts in original repository
     (testing "Repository after removals"
@@ -95,12 +88,9 @@
       (let [loaded-repo (bubas/create-bubas-repository "winnie-the-pooh.ndjson")]
         (assert-repositories-match @repo loaded-repo 3 5)))))
 
-
 (deftest test-repository-synchronization
   (let [repo1 (atom (bubas/create-bubas-repository "test-ositos.nosql"))
-        repo2 (atom (bubas/create-bubas-repository "test-yoggies.ndjson"))
-        read-repo1 (atom nil)
-        read-repo2 (atom nil)]
+        repo2 (atom (bubas/create-bubas-repository "test-yoggies.ndjson"))]
     
     ;; Create test data
     (doseq [i (range 1 5)]
@@ -109,15 +99,13 @@
       (create-example-bear! repo2 i)
       (create-example-grizzly! repo2 i))
 
-    ;; Initialize read repositories
-    (reset! read-repo1 (bubas/create-bubas-repository "test-ositos.nosql"))
-    (reset! read-repo2 (bubas/create-bubas-repository "test-yoggies.ndjson"))
-
     ;; Test individual repository synchronization
     (testing "Individual repository synchronization"
-      (assert-repositories-match @repo1 @read-repo1 4 4)
-      (assert-repositories-match @repo2 @read-repo2 4 4))
+      (let [read-repo1 (bubas/create-bubas-repository "test-ositos.nosql")
+            read-repo2 (bubas/create-bubas-repository "test-yoggies.ndjson")]
+        (assert-repositories-match @repo1 read-repo1 4 4)
+        (assert-repositories-match @repo2 read-repo2 4 4)
 
-    ;; Test cross-repository synchronization
-    (testing "Cross-repository synchronization"
-      (assert-repositories-match @repo1 @read-repo2 4 4))))
+        ;; Test cross-repository synchronization
+        (testing "Cross-repository synchronization"
+          (assert-repositories-match @repo1 read-repo2 4 4))))))
