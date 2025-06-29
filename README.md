@@ -1,6 +1,9 @@
 # NDJSON Repository
 
-A Clojure library for NDJSON-based repositories with O(1) lookups through in-memory indexing.
+A Minimal Clojure library for NDJSON-based repositories with O(1) lookups through in-memory indexing.
+
+I created this library to have a simple NDJSON polymorphic store. It has just simple CRUD operations
+and supports polymorphic JSON objects, just specify the key to each object when creating the store.
 
 ## Features
 
