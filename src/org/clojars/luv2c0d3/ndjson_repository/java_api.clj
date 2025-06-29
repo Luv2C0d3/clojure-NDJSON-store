@@ -23,8 +23,7 @@
 (defn -add [this entry]
   (let [clj-entry (to-clojure entry)
         repo-atom (.state this)
-        [new-repo added-entry] (ndjson/add! @repo-atom clj-entry)]
-    (reset! repo-atom new-repo)
+        added-entry (ndjson/add-to-atom! repo-atom clj-entry)]
     (to-java added-entry)))
 
 (defn -delete [this key-name key-value]
