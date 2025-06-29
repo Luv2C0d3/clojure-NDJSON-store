@@ -1,6 +1,16 @@
-# mi-app-clj
+# NDJSON Repository
 
-FIXME: description
+A Clojure library for NDJSON-based repositories with O(1) lookups through in-memory indexing.
+
+## Structure
+
+- `src/org/clojars/luv2c0d3/ndjson_repository/ndjson.clj` - Core NDJSON repository implementation
+- `test/org/clojars/luv2c0d3/ndjson_repository/` - Example implementations demonstrating different use cases:
+  - `bubas_test.clj` - Example using the repository for bear-related data
+  - `client_test.clj` - Example using the repository for client data storage
+  - `tokens_test.clj` - Example using the repository for token storage
+
+Each test file demonstrates a different way to use the NDJSON repository, showing how it can be adapted for various data storage needs while maintaining O(1) lookups through in-memory indexing.
 
 ## Installation
 

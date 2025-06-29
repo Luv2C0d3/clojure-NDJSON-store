@@ -1,4 +1,4 @@
-(ns repository.tokens-test
+(ns org.clojars.luv2c0d3.ndjson-repository.tokens-test
   (:require [clojure.test :refer :all]
             [clojure.tools.logging :as log]
             [repository.token :as token]

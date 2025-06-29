@@ -1,4 +1,4 @@
-(ns repository.client-test
+(ns org.clojars.luv2c0d3.ndjson-repository.client-test
   (:require [clojure.test :refer :all]
             [clojure.tools.logging :as log]
             [repository.client :as client]

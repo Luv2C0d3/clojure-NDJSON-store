@@ -1,4 +1,4 @@
-(ns repository.bubas-test
+(ns org.clojars.luv2c0d3.ndjson-repository.bubas-test
   (:require [clojure.test :refer :all]
             [repository.bubas :as bubas]
             [clojure.java.io :as io]))
