@@ -1,5 +1,5 @@
 (ns repository.bubas
-  (:require [repository.ndjson :refer [create-repository find-by-key add! delete!]]
+  (:require [org.clojars.luv2c0d3.ndjson-repository.ndjson :refer [create-repository find-by-key add! delete!]]
             [clojure.string :as str]
             [clojure.tools.logging :as log]))
 

@@ -1,5 +1,5 @@
 (ns repository.client
-  (:require [repository.ndjson :refer [create-repository find-by-key add! delete!]]
+  (:require [org.clojars.luv2c0d3.ndjson-repository.ndjson :refer [create-repository find-by-key add! delete!]]
             [clojure.tools.logging :as log]))
 
 (defn create-client-repository

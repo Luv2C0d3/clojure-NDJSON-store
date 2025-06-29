@@ -1,4 +1,4 @@
-(ns repository.ndjson
+(ns org.clojars.luv2c0d3.ndjson-repository.ndjson
   (:require [clojure.java.io :as io]
             [cheshire.core :as json]
             [clojure.tools.logging :as log]
